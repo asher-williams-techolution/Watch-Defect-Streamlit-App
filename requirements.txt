@@ -1,0 +1,13 @@
+opencv-python
+numpy
+pandas
+matplotlib
+google-cloud-storage
+ultralytics
+pillow
+stqdm==0.0.5
+streamlit==1.24.0
+extra_streamlit_components==0.1.60
+streamlit-image-select
+st-click-detector
+networkx
