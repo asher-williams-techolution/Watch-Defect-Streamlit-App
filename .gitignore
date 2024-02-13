@@ -1,7 +1,19 @@
 faceopen_key.json
-./images
-./models
+models
+images
 __pycache__
-./.ipynb_checkpoints
-./__pycache__
+ensembleyolomodeltesting.ipynb
+# Ignore faceopen_key.json file
+faceopen_key.json
+
+# Ignore models directory
+models/
+
+# Ignore images directory
+images/
+
+# Ignore __pycache__ directory
+__pycache__/
+
+# Ignore ensembleyolomodeltesting.ipynb file
 ensembleyolomodeltesting.ipynb
