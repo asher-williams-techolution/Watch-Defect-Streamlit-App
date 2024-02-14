@@ -9,6 +9,7 @@ import traceback
 from pathlib import Path
 from .model_wrappers import YOLOModelWrapper
 import concurrent.futures
+import pandas as pd
 
 
 class DefectDetectionPipeline():
@@ -103,7 +104,7 @@ class DefectDetectionPipeline():
     #     return defect_detection_results, object_detection_speed, classification_speed
 
 
-    def detect_defects(self, input_image:Union[str, Image.Image], confidence_threshold:float = 0.60, iou_threshold:float = 0.60, device:str = None, excluded_parts:List[str] = []):
+    def detect_defects(self, input_image:Union[str, Image.Image], confidence_threshold:float = 0.60, iou_threshold:float = 0.60, device:str = None, excluded_parts:List[str] = [], return_df:bool = False):
         """
         Detects defects in the input image.
 
@@ -139,10 +140,10 @@ class DefectDetectionPipeline():
             for object_name, object_info in object_detection_results.items():
                 if object_name in excluded_parts:
                     defect_detection_results[object_name] = {"Bounding Box": object_info["Bounding Box"], 
-                                                            "Confidence": object_info["Confidence"], 
+                                                            "Confidence": round(float(object_info["Confidence"]), 2), 
                                                             "Cropped_Image": object_info["Cropped_Image"],
-                                                            "Classification": "Excluded",
-                                                            "Classification_Confidence": None}
+                                                            "Classification": "Non Defective",
+                                                            "Classification_Confidence": round(float(object_info["Confidence"]), 2)}
                     continue
 
                 cropped_image_path = object_info["Cropped_Image"]
@@ -156,14 +157,38 @@ class DefectDetectionPipeline():
                 average_classification_speed += classification_speed["inference"]
 
                 defect_detection_results[object_name] = {"Bounding Box": object_detection_results[object_name]["Bounding Box"], 
-                                                        "Confidence": object_detection_results[object_name]["Confidence"], 
+                                                        "Confidence": round(float(object_detection_results[object_name]["Confidence"]), 2), 
                                                         "Cropped_Image": object_detection_results[object_name]["Cropped_Image"],
                                                         "Classification": classification,
-                                                        "Classification_Confidence": confidence}
-                
-            average_classification_speed /= (len(defect_detection_results) - len(excluded_parts))
+                                                        "Classification_Confidence": round(float(confidence), 2)}
+            try:
+                average_classification_speed /= (len(defect_detection_results) - len(excluded_parts))
+            except ZeroDivisionError:
+                average_classification_speed = 0
+
+        if return_df:
+            defect_detection_results = results_to_df(defect_detection_results)
+        else:
+            defect_detection_results = defect_detection_results
 
         return defect_detection_results, object_detection_speed, average_classification_speed
+    
+def results_to_df(defect_detection_results:Dict[str, Dict[str, Union[str, float]]], columns_to_include:List[str] = ["Classification", "Classification_Confidence"]):
+    """
+    Converts the defect detection results to a pandas DataFrame.
+
+    Parameters:
+    - defect_detection_results (dict): A dictionary containing the defect detection results, including the bounding box, confidence score, cropped image, and classification for each detected defect.
+
+    Returns:
+    - df (pandas.DataFrame): A DataFrame containing the defect detection results.
+    """
+
+    defect_detection_results = {object_name: {key: value for key, value in object_info.items() if key in columns_to_include}
+                                for object_name, object_info in defect_detection_results.items()}
+
+    df = pd.DataFrame(defect_detection_results).T
+    return df
 
 
 

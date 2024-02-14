@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
 from model_inference.model_wrappers import YOLOModelWrapper
-from model_inference.defect_detection_pipeline import DefectDetectionPipeline
+from model_inference.model_pipelines import DefectDetectionPipeline
 import os
 import cv2
 import numpy as np

@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from model_inference.model_wrappers import YOLOModelWrapper
-from model_inference.defect_detection_pipeline import DefectDetectionPipeline
+from model_inference.model_pipelines import DefectDetectionPipeline
 from google.cloud import storage
 import networkx as nx
 import tempfile
@@ -287,6 +287,8 @@ def create_model_pipeline():
 def main():
     st.title("Model Configuration")
 
+    st.divider()
+
     session_state_initialization()
 
     if not st.session_state.GCS_Authenticated:
@@ -294,12 +296,18 @@ def main():
     else:
         authentication_status = st.success("GCS Authenticated")
 
+    st.divider()
+
     if check_for_gcs_authentication():
         add_object_detection_model()
+
+    st.divider()
 
     if check_for_obj_detection_model():
         exclude_parts_from_object_detection()
         add_classification_model()
+
+    st.divider()
 
     if check_for_obj_detection_model() and check_if_classification_models_added():
         create_model_pipeline()
