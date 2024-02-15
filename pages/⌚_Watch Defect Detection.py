@@ -9,12 +9,12 @@ import cv2
 st.set_page_config(page_title="Defect Detection", page_icon="🔍", layout="wide", initial_sidebar_state="collapsed")
 
 # Copilot Gifs
-copilot_gifs = {"Big Ring" : {"Reference": "https://storage.googleapis.com/auto-ai_resources_fo/project-6530fd75cae09dbf9b95d504/copilot-65af4b609eebc914988ccfb3/referenceDataGroups/referenceDataGroup-65b19d123965bf6264a0ebc8/referenceDatas/referenceData-65b3f836a612d53e2705069c/Big%20Ring%20-%20Reference%20-%20v2.gif?GoogleAccessId=rlef-cloud-storage-admin%40faceopen-techolution.iam.gserviceaccount.com&Expires=1708192513&Signature=abrTIdvGPgQHJvvGmfsNAsnBoycmiAQH%2FKCF3nkuS7vs%2F7xjHYXjt0UnMtXeoJ05DJaar1AzcChzmWZ9obRsetII7CMF%2FJVB9f63suyyjqvy5Ry80Lo3fY1oI7g3AqCiUfnTLqsildL3oFf%2Fug20DIIDHfbAd%2BYcJqC3nB4zR0RHm60y9XdD60k02Sm%2FfSgD9YIoJhJHxkQD1vnhXmZvno3j28IN5dlbsPKvVf%2BaxYe3HVxLPYHDEEzpogEh%2BrI92G4jg3r5iuZKu9begKSUSw%2BjdY1CeLVu9l4rW7jtFeYkyU%2BLNWXAv1gLpR8DKnVIVaH9Wj63pi5PJ2BPcj64hQ%3D%3D",
-                              "Good": "https://storage.googleapis.com/auto-ai_resources_fo/project-6530fd75cae09dbf9b95d504/copilot-65af4b609eebc914988ccfb3/referenceDataGroups/referenceDataGroup-65b19d153965bf6264a0ebc9/referenceDatas/referenceData-65b19d38a528649e70f5e9a4/Big%20Ring%20-%20Good.gif?GoogleAccessId=rlef-cloud-storage-admin%40faceopen-techolution.iam.gserviceaccount.com&Expires=1708192513&Signature=G7sy4ZZu8pIFyGfgfroH8A%2Bj1CAwiI2IoxHwT0Q1mlimVKWycCEjG4Ryi8cppXv8PjSoraUeM1ehGYQtnbXslMRRKIEat%2B%2BpZY6TShLVXlweZCCT5Z9FfLMpy10Y%2Bugw7bwr1ruQ%2BQh%2FkVApSssIsUlY89kmVUAwZc2uWJF%2B0UYlFgBrmw37zd4An3Yer5U4%2F%2B7oHmmCMJa%2FqW%2F4avGoIrg%2BgjkL%2F6SaMYJeX6KYVoR6%2F88Z8hb2wwbaq67Z4kCS2GYmNAEBZVcZhVvozVaJ7yrdD9Bi7zRLnvbe70E%2Fnlyg7MB74JGYdGarPZ8M2uZEp92PXBQ%2BsuyoYkc1fl8XkA%3D%3D",
-                              "Bad": "https://storage.googleapis.com/auto-ai_resources_fo/project-6530fd75cae09dbf9b95d504/copilot-65af4b609eebc914988ccfb3/referenceDataGroups/referenceDataGroup-65b19d153965bf6264a0ebca/referenceDatas/referenceData-65b19d38a528649e00f5e9a5/Big%20Ring%20-%20Bad.gif?GoogleAccessId=rlef-cloud-storage-admin%40faceopen-techolution.iam.gserviceaccount.com&Expires=1708192513&Signature=aExPan9j2SdJSKgOrdnINy4xEx2pPJLOwMBIxMVg8BwsVoIU1FxL6YmTDtgWxPgkDPSkxajxPmOdyIJvvy2yUedLFSQTibWp0uLQqRv%2B2%2FtTlgKQsV3GdQrQJD5mX8IJ%2BPXzfKK9EyPmhFA8JAkAZYS5TM8D5hy9pTXHgWRWv7E7mdnrOPIZAozXvMDNFlFf3qy7JrGJDFDVUCJvrRthuFNvSh9TPxuJwfYiNNUA13Yrp2BgV9nV3v%2BVrGdSxoaqfi845vC0YeQh64h8hm3vOlkcZMO5vgt%2FuVEVLJKWS%2BIH4fRy7ZB78P9n16UepJaXvGx35EVKv7pmDSTn40pYOA%3D%3D"},
-                "Small Ring" : {"Reference": "https://storage.googleapis.com/auto-ai_resources_fo/project-6530fd75cae09dbf9b95d504/copilot-65af4b689eebc956628cd35b/referenceDataGroups/referenceDataGroup-65b19d443965bf6264a0ebcb/referenceDatas/referenceData-65b3f856a612d5739b051248/Small%20Ring%20-%20Reference%20-%20v2.gif?GoogleAccessId=rlef-cloud-storage-admin%40faceopen-techolution.iam.gserviceaccount.com&Expires=1708192912&Signature=B5qcUu5uXOyrhxlH8LCvB6nkYk5wW198Ws5aqjEBulYgNLSsKvMTWgSMhPtBysURrs5awLMDn1vS7ngzwqmOTjjL0lpk%2BJqP8MU5mbzXPbt4w0xOErSjZCzu6hLITnSDbKJ7JBsxPr8a1%2FdboOS391KRSZYFfQFJ%2B6%2Fuq%2BY2JxCDi%2Bv%2FH2VrHz2I5kMsrK%2B4Ut6TdYR6wEYSp5OiDlbQDEwZj5MBkZpJvERvzuhcNr9kn5EXpNfIIchd81IpLzLmmr1MI9gJO1q3gsRvG%2B8R8cH6dU9Ch9CxntnMY4mSItL4gQg41F32f8Hmn0oqateDr7V9uWTg4wtqnu7Ibxj5sQ%3D%3D",
-                                "Good": "https://storage.googleapis.com/auto-ai_resources_fo/project-6530fd75cae09dbf9b95d504/copilot-65af4b689eebc956628cd35b/referenceDataGroups/referenceDataGroup-65b19d453965bf6264a0ebcc/referenceDatas/referenceData-65b19d64a528645c5af5efa1/Small%20Ring%20-%20Good.gif?GoogleAccessId=rlef-cloud-storage-admin%40faceopen-techolution.iam.gserviceaccount.com&Expires=1708192912&Signature=JYivf94clAoiHqKo6XBjLm6EV0wAHsKF6M1srkvAHIxG1fBXpR88wFXGjPm6WnGk%2Fks5tnKZoSG9%2BRh%2F4roNqR%2Fuu95sGhJftNfxhyaqSwJyK4yYgzyrD2lBohZMQcsKSHMJ0cnKjDClJRNbL%2BCpG1fFSbSVRGdI5GUX4nhIt84c9fNHgaraCvGH0qy1Vt%2F7WpevJiJQT48aZEWURbqQGP%2F4p2Kdwh%2BQ8rDAGFL99XLc%2FM39%2B%2FV%2FrEpqxwslFMpA47LQxrQMc4QTn1K9i85vF92ehoqMSxZXdWK2gbpE7F%2BC0oVhYuVPzc3uXefbHOuFICzXYEZBHzPkOrFgWNpaWQ%3D%3D",
-                                "Bad": "https://storage.googleapis.com/auto-ai_resources_fo/project-6530fd75cae09dbf9b95d504/copilot-65af4b689eebc956628cd35b/referenceDataGroups/referenceDataGroup-65b19d453965bf6264a0ebcd/referenceDatas/referenceData-65b19d64a528644d0ff5efa2/Small%20Ring%20-%20Bad.gif?GoogleAccessId=rlef-cloud-storage-admin%40faceopen-techolution.iam.gserviceaccount.com&Expires=1708192912&Signature=CVHi4pyonbDFSu%2FYnTkwnQ%2B6VyUSlGCH9FRTEUUf5%2FDaPB1IdqrvBewCd8uoSlqo8SSjIyYD6KFfUUwoHW3ORTDJglxgLhaePFY4iR%2Fv9n54cvvhREwGEBKuI0JPCC%2F4KnMz9tpNDEnV9%2B7Z0axVpOE3uyz3dgydfYOUKCB1e3LKDZem9fv7s%2FMpdZShd%2BuLGSUGxdSGX9qtQZ0KO%2BBjIwexpftdiDaR4TbmeEKS84sYmAW619fJcKFB4lPRuYsWIN4DnpvAh4yqWsqwnNOdMhAvuul%2Fi5LIM%2FtCi%2FQ%2F%2BqbtkljtmQYjdiBAh2DeEaRo8EBSR%2FkrzVmDhABTmKhN%2FA%3D%3D"}}
+copilot_gifs = {"Big Ring" : {"Reference": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Big%20Ring%20-%20Reference%20-%20v4.gif",
+                              "Good": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Big%20Ring%20-%20Good%20-%20v4.gif",
+                              "Bad": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Big%20Ring%20-%20Bad%20-%20v4.gif"},
+                "Small Ring" : {"Reference": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Small%20Ring%20-%20Reference%20-%20v4.gif",
+                                "Good": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Small%20Ring%20-%20Good%20-%20v4.gif",
+                                "Bad": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Small%20Ring%20-%20Bad%20-%20v4.gif"}}
 
 # Function to check if models are configured
 def check_models_configurated():
@@ -227,7 +227,7 @@ def defective_recoloring(val):
     Returns:
         str: The CSS style for the cell background color.
     """
-    color = 'red' if val!="Non Defective" else 'green'
+    color = 'red' if val != "Non Defective" else 'green'
     return f'background-color: {color}'
 
 def show_copilot_modal(selected_cropped_image):
@@ -283,7 +283,7 @@ def image_selection_view(image_container):
         
     _, col2, _ = image_container.columns([1, 1, 1])
 
-    col2.image(image, caption=f"Image Name: {image.split('/')[-1]}", width=800)
+    col2.image(image, caption=f"Image Name: {image.split('/')[-1]}", use_column_width=True)
     defect_detection_button = image_container.button(label="Detect for Defects", use_container_width=True, type="primary")
     if defect_detection_button:
         st.session_state["inference_mode"] = True
@@ -298,6 +298,7 @@ def defect_detection_view(image_container):
     Args:
         image_container (streamlit.container.Container): Streamlit container to display the defect detection view.
     """
+
     image = st.session_state["selected_image"]
 
     defect_detection_results, object_detection_speed, classification_speed = state_managed_model_inference(image)
@@ -310,6 +311,15 @@ def defect_detection_view(image_container):
     results_df = results_to_df(defect_detection_results)
 
     results_df.rename(columns={"Classification_Confidence": "Confidence"}, inplace=True)
+
+    # Fill in missing parts if there are any
+    detected_parts = set(results_df.index)
+    all_parts = set(st.session_state["object_detection_model"].names)
+    missing_parts = all_parts - detected_parts
+
+    if missing_parts:
+        missing_parts_df = results_to_df({part: {"Bounding Box": None, "Classification": "Missing", "Confidence": 1.0} for part in missing_parts})
+        results_df = results_df._append(missing_parts_df)
 
     right_side_container.subheader("Detailed Report")
     right_side_container.table(results_df.style.map(defective_recoloring, subset=["Classification"]))
