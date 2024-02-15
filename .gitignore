@@ -1,10 +1,8 @@
-faceopen_key.json
+
 models
 images
 __pycache__
 ensembleyolomodeltesting.ipynb
-# Ignore faceopen_key.json file
-faceopen_key.json
 
 # Ignore models directory
 models/
