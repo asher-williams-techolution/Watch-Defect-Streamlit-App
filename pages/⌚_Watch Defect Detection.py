@@ -152,8 +152,8 @@ def model_inference(input_image, return_df=False):
     defect_detection_pipeline = st.session_state["defect_detection_pipeline"]
 
     defect_detection_results, object_detection_speed, classification_speed = defect_detection_pipeline.detect_defects(input_image=input_image, 
-                                                                                                                      confidence_threshold=0.60, 
-                                                                                                                      iou_threshold=0.60, 
+                                                                                                                      confidence_threshold=0.30, 
+                                                                                                                      iou_threshold=0.30, 
                                                                                                                       device="mps", 
                                                                                                                       excluded_parts=st.session_state["excluded_objects"],
                                                                                                                       return_df=return_df)

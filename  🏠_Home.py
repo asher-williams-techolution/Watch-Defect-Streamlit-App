@@ -56,5 +56,32 @@ from stqdm import stqdm
 
 st.set_page_config(page_title="Home", page_icon="🏠")
 
-st.write("# This will be a welcome screen, we'll fix it up later")
+def main():
+    st.title("Welcome to Watch Defect Detection App")
+    st.write("This app allows you to detect defects in watches using computer vision techniques.")
+    
+    # Navigation
+    pages = {
+        "Home": home_page,
+        "Defect Detection": defect_detection_page,
+        "About": about_page
+    }
+    
+    page = st.sidebar.selectbox("Navigation", list(pages.keys()))
+    pages[page]()
+    
+def home_page():
+    st.write("This is the home page.")
+    # Add content for the home page here
+    
+def defect_detection_page():
+    st.write("This is the defect detection page.")
+    # Add content for the defect detection page here
+    
+def about_page():
+    st.write("This is the about page.")
+    # Add content for the about page here
+    
+if __name__ == "__main__":
+    main()
 
