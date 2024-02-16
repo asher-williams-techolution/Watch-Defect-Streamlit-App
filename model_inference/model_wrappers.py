@@ -310,7 +310,8 @@ class YOLOModelWrapper():
 
             object_detection_results[object_name] = {"Bounding Box": bounding_box, 
                                                      "Confidence": confidence_score, 
-                                                     "Cropped_Image": path_to_cropped_image}
+                                                     "Cropped_Image": path_to_cropped_image,
+                                                     "Cropped Image Array": cropped_image}
             
         return object_detection_results, speed
     

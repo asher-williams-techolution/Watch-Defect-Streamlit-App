@@ -88,6 +88,9 @@ def state_initialization():
     if "selected_image" not in st.session_state:
         st.session_state["selected_image"] = None
 
+    if "detected_object_images" not in st.session_state:
+        st.session_state["detected_object_images"] = {} 
+
 # Function to verify setup
 def setup_verification():
     """
@@ -101,6 +104,17 @@ def setup_verification():
         return True
     else:
         return False
+    
+def store_cropped_images(defect_detection_results):
+    """
+    Stores the cropped images in the session state.
+
+    Args:
+        defect_detection_results (dict): The defect detection results.
+    """
+    
+
+    
 
 # Function to show image selections
 def show_image_selections(container):
@@ -120,22 +134,39 @@ def show_image_selections(container):
         return img
 
 # Function to show cropped image selections
-def show_cropped_image_selections(container):
+def show_cropped_image_selections(container, input_image):
     """
     Shows the cropped image selections.
 
     Args:
         container (streamlit.container.Container): Streamlit container to display the cropped image selections.
+        input_image (str): The path of the original input image.
 
     Returns:
         str: The selected cropped image path.
     """
-    base_path = st.session_state["object_detection_model"].local_image_storage_dir
+    
+    defect_detection_results = st.session_state["model_inference_results"][input_image][0]
+
+    # for part, data in defect_detection_results.items():
+    #     print(data, end="\n\n")
+
 
     with container:
-        img = image_select(label="Select a part to inspect", images=[os.path.join(base_path, file) for file in os.listdir(base_path) if file.endswith((".jpg", ".png", ".jpeg"))],
-                           captions=[file.split("_cropped")[0] for file in os.listdir(base_path) if file.endswith((".jpg", ".png", ".jpeg"))])
-        return img
+
+        col1, col2, _ = container.columns([1, 1, .25])
+
+        with col1:
+
+            img = image_select(label="Select a part to inspect", images=[data["Cropped Image Array"] for data in defect_detection_results.values()],
+                            captions=[f"Part: {part}" for part in defect_detection_results.keys()], return_value="index", use_container_width=False)
+            
+        with col2:
+            #print(defect_detection_results["Big Gear"])
+            print(defect_detection_results[list(defect_detection_results.keys())[img]]["Cropped Image Array"], list(defect_detection_results.keys())[img])
+            st.image(defect_detection_results[list(defect_detection_results.keys())[img]]["Cropped Image Array"], use_column_width=True)
+
+            return img
 
 # Function for model inference
 def model_inference(input_image, return_df=False):
@@ -180,7 +211,7 @@ def state_managed_model_inference(input_image, return_df=False):
         defect_detection_results, object_detection_speed, classification_speed = model_inference(input_image, return_df=return_df)
         st.session_state["model_inference_results"][input_image] = (defect_detection_results, object_detection_speed, classification_speed)
 
-    return defect_detection_results, object_detection_speed, classification_speed
+    return defect_detection_results, object_detection_speed, classification_speed, input_image
 
 # Function to display bounding boxes on the image
 def display_bounding_boxes(image, results):
@@ -230,11 +261,8 @@ def defective_recoloring(val):
     color = 'red' if val != "Non Defective" else 'green'
     return f'background-color: {color}'
 
-def show_copilot_modal(selected_cropped_image):
+def show_copilot_modal(selected_cropped_image, part_name):
     modal = Modal(title="Individual Part Analysis", key="Copilot Modal", max_width=1400)
-
-    part_name = selected_cropped_image.split("_cropped")[0].split("/")[-1]
-    print(part_name)
 
     with modal.container():
         left_side, right_side = st.columns([.6, .4])
@@ -249,7 +277,7 @@ def show_copilot_modal(selected_cropped_image):
                 _, center_col, _ = st.columns([1, 3, 1])
 
                 with center_col:
-                    st.image(selected_cropped_image, caption=f"Image Name: {selected_cropped_image.split('/')[-1]}", use_column_width=True)
+                    st.image(selected_cropped_image, use_column_width=True)
 
             with right_side:
                 st.subheader(f"Reference Guide for {part_name}s")
@@ -262,7 +290,7 @@ def show_copilot_modal(selected_cropped_image):
             _, center_col, _ = st.columns([1, 1, 1])
 
             with center_col:
-                st.image(selected_cropped_image, caption=f"Image Name: {selected_cropped_image.split('/')[-1]}", use_column_width=True)
+                st.image(selected_cropped_image, use_column_width=True)
 
         st.divider()
 
@@ -301,7 +329,7 @@ def defect_detection_view(image_container):
 
     image = st.session_state["selected_image"]
 
-    defect_detection_results, object_detection_speed, classification_speed = state_managed_model_inference(image)
+    defect_detection_results, object_detection_speed, classification_speed, input_image = state_managed_model_inference(image)
 
     left_side_container, _, right_side_container = image_container.columns([.49, .02, .49])
 
@@ -331,17 +359,19 @@ def defect_detection_view(image_container):
     right_col.metric(label="Overall Classification Speed", value=f"{classification_speed:.2f}ms 💨")
     right_side_container.divider()
 
-    select_cropped_image = show_cropped_image_selections(right_side_container)
+    select_cropped_image_index = show_cropped_image_selections(right_side_container, input_image)
+    selected_cropped_image = defect_detection_results[list(defect_detection_results.keys())[select_cropped_image_index]]["Cropped Image Array"]
+    selected_cropped_image_part_name = list(defect_detection_results.keys())[select_cropped_image_index]
 
-    _, select_cropped_image_col, _ = right_side_container.columns([1, .5, 1])
+    # _, select_cropped_image_col, _ = right_side_container.columns([1, .5, 1])
 
-    select_cropped_image_col.image(select_cropped_image, use_column_width=True)
+    # select_cropped_image_col.image(selected_cropped_image, use_column_width=True)
 
     inspect_button = right_side_container.button(label="Inspect", use_container_width=True, type="primary")
 
     if inspect_button:
         st.session_state["inspection_mode"] = True
-        show_copilot_modal(select_cropped_image)
+        show_copilot_modal(selected_cropped_image, selected_cropped_image_part_name)
 
     back_button = image_container.button(label="Run on Another Image", use_container_width=True, type="primary")
     if back_button:

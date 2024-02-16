@@ -142,6 +142,7 @@ class DefectDetectionPipeline():
                     defect_detection_results[object_name] = {"Bounding Box": object_info["Bounding Box"], 
                                                             "Confidence": round(float(object_info["Confidence"]), 2), 
                                                             "Cropped_Image": object_info["Cropped_Image"],
+                                                            "Cropped Image Array": object_info["Cropped Image Array"],
                                                             "Classification": "Non Defective",
                                                             "Classification_Confidence": round(float(object_info["Confidence"]), 2)}
                     continue
@@ -159,6 +160,7 @@ class DefectDetectionPipeline():
                 defect_detection_results[object_name] = {"Bounding Box": object_detection_results[object_name]["Bounding Box"], 
                                                         "Confidence": round(float(object_detection_results[object_name]["Confidence"]), 2), 
                                                         "Cropped_Image": object_detection_results[object_name]["Cropped_Image"],
+                                                        "Cropped Image Array": object_detection_results[object_name]["Cropped Image Array"],
                                                         "Classification": classification,
                                                         "Classification_Confidence": round(float(confidence), 2)}
             try:

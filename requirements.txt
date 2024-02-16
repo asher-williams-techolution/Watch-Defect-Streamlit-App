@@ -1,8 +1,5 @@
-
 extra-streamlit-components==0.1.60
-
 google-cloud-storage==2.14.0
-
 networkx==3.2.1
 numpy==1.26.3
 opencv-python==4.9.0.80
