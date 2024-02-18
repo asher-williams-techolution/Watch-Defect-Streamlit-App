@@ -3,9 +3,11 @@ import os
 from model_inference.model_wrappers import YOLOModelWrapper
 from model_inference.model_pipelines import DefectDetectionPipeline
 from google.cloud import storage
+from google.oauth2 import service_account
 import networkx as nx
 import tempfile
 import matplotlib.pyplot as plt
+import json
 
 # TODO: Add a locking mechanism to prevent modification
 
@@ -28,7 +30,6 @@ default_cls_model_file_name = {"Big Ring": "watch-big_ring-classification-model.
                                "Small Ring": "watch-small_ring-classification-model.pt"}
 
 
-
 def session_state_initialization():
     if "object_detection_model_count" not in st.session_state:
         st.session_state.object_detection_model_count = 0
@@ -43,26 +44,36 @@ def session_state_initialization():
         st.session_state.excluded_objects = ["Big Gear"]
 
     if "GCS_Authenticated" not in st.session_state:
-        st.session_state.GCS_Authenticated = False
+        st.session_state.GCS_Authenticated = True if check_for_gcs_authentication() else False
 
     if "configuration_complete" not in st.session_state:
         st.session_state.configuration_complete = False
 
-def authenticate_gcs(json_path):
+def authenticate_gcs(json_path=None):
     try:
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = json_path
-        storage.Client()
-        st.session_state.GCS_Auth_JSON_Path = json_path
+        if json_path:
+            # Read the file and convert it to a JSON string
+            with open(json_path) as json_file:
+                credentials_info = json.load(json_file)
+            credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            storage.Client(credentials=credentials)
+        else:
+            # Use credentials from st.secrets
+            credentials_info = st.secrets["gcs"]
+            credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            storage.Client(credentials=credentials)
+        
+        # Store the credentials in session state
+        st.session_state['gcs_credentials'] = credentials
         st.session_state.GCS_Authenticated = True
         return True
-    except:
+    except Exception as e:
+        st.error(f"Authentication Failed: {e}")
         return False
 
 def check_for_gcs_authentication():
-    try:
-        storage.Client()
-        st.session_state.GCS_Authenticated = True
-        return True
+    try:    
+        authenticate_gcs()
     except:
         return False
  
