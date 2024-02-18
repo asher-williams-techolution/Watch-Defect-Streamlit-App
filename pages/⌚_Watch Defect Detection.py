@@ -4,6 +4,7 @@ from streamlit_image_select import image_select
 import os
 from model_inference.model_pipelines import results_to_df
 import cv2
+import torch
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Defect Detection", page_icon="🔍", layout="wide", initial_sidebar_state="collapsed")
@@ -161,13 +162,15 @@ def model_inference(input_image, return_df=False):
     Returns:
         tuple: A tuple containing the defect detection results, object detection speed, and classification speed.
     """
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     
     defect_detection_pipeline = st.session_state["defect_detection_pipeline"]
 
     defect_detection_results, object_detection_speed, classification_speed = defect_detection_pipeline.detect_defects(input_image=input_image, 
                                                                                                                       confidence_threshold=0.30, 
                                                                                                                       iou_threshold=0.30, 
-                                                                                                                      device="cpu", 
+                                                                                                                      device=device, 
                                                                                                                       excluded_parts=st.session_state["excluded_objects"],
                                                                                                                       return_df=return_df)
 
