@@ -120,7 +120,7 @@ def show_image_selections(container):
     base_path = os.path.join("pages", "sample_images")
     
     with container:
-        img = image_select(label="Select an image", images=[os.path.join(base_path, file) for file in os.listdir(base_path) if file.endswith((".jpg", ".png", ".jpeg"))])
+        img = image_select(label="", images=[os.path.join(base_path, file) for file in os.listdir(base_path) if file.endswith((".jpg", ".png", ".jpeg"))], use_container_width=False)
         return img
 
 # Function to show cropped image selections
@@ -139,16 +139,30 @@ def show_cropped_image_selections(container, input_image):
     defect_detection_results = st.session_state["model_inference_results"][input_image][0]
 
     with container:
+        inspect_select_title = f"<h5 style='text-align: center; font-size:18px;'>Can't make out what's going on?</h5>"
+        st.markdown(inspect_select_title, unsafe_allow_html=True)
 
-        col1, col2, _ = container.columns([1, 1, .25])
+        inspect_select_text = f"<p style='text-align: center; font-size:14px;'>Select one of the parts then click inspect!</p>"
+        st.markdown(inspect_select_text, unsafe_allow_html=True)
+
+        col1, col2, col3 = container.columns([1, 1, 1])
 
         with col1:
-            img = image_select(label="Select a part to inspect", images=[data["Cropped Image Array"] for data in defect_detection_results.values()],
+
+            img = image_select(label="", images=[data["Cropped Image Array"] for data in defect_detection_results.values()],
                             captions=[f"Part: {part}" for part in defect_detection_results.keys()], return_value="index", use_container_width=False)
             
         with col2:
+
             st.image(defect_detection_results[list(defect_detection_results.keys())[img]]["Cropped Image Array"], use_column_width=True)
-            return img
+
+        with col3:
+            model_classification = defect_detection_results[list(defect_detection_results.keys())[img]]["Classification"]
+            color = 'red' if model_classification != "Non Defective" else 'green'
+            model_classification_text = f"<h4 style='text-align: center; margin: auto; padding: 25% 0; font-size:28px; color: {color};'>Model Decision: {model_classification}. Click the inspect button to verify the AI's decision.</p>"
+            st.markdown(model_classification_text, unsafe_allow_html=True)
+            
+            return img, container
 
 # Function for model inference
 def model_inference(input_image, return_df=False):
@@ -164,7 +178,7 @@ def model_inference(input_image, return_df=False):
     """
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-         
+
     defect_detection_pipeline = st.session_state["defect_detection_pipeline"]
 
     defect_detection_results, object_detection_speed, classification_speed = defect_detection_pipeline.detect_defects(input_image=input_image, 
@@ -316,18 +330,28 @@ def image_selection_view(image_container):
     Args:
         image_container (streamlit.container.Container): Streamlit container to display the image selection view.
     """
+
+    outer_col, _, right_outer_col = image_container.columns([.5, .05, .4])
+
+    # The HTML code to embed the SVG image
+    select_text_html = f"<p style='text-align: left; font-size:24px;'>Click to select an image for processing</p>"
+
+    # Display the SVG image using st.markdown with unsafe_allow_html set to True
+    outer_col.markdown(select_text_html, unsafe_allow_html=True)
     
     # Show image selections and get the selected image
-    image = show_image_selections(image_container)
-        
-    # Create three columns layout, with the middle column being the image column
-    _, col2, _ = image_container.columns([1, 1, 1])
+    image = show_image_selections(outer_col)
+
+    selected_text_html = f"<p style='text-align: center; font-size:24px;'>Previewing the Selected Image</p>"
+
+    # Display the SVG image using st.markdown with unsafe_allow_html set to True
+    right_outer_col.markdown(selected_text_html, unsafe_allow_html=True)
 
     # Display the selected image with its name as caption
-    col2.image(image, caption=f"Image Name: {image.split('/')[-1]}", use_column_width=True)
+    right_outer_col.image(image, caption=f"Image Name: {image.split('/')[-1]}", use_column_width=True)
     
     # Create a button for defect detection
-    defect_detection_button = image_container.button(label="Detect for Defects", use_container_width=True, type="primary")
+    defect_detection_button = right_outer_col.button(label="Detect for Defects", use_container_width=True, type="primary")
     
     # If the defect detection button is clicked
     if defect_detection_button:
@@ -353,12 +377,18 @@ def defect_detection_view(image_container):
     defect_detection_results, object_detection_speed, classification_speed, input_image = state_managed_model_inference(image)
 
     # Split the image container into left, middle, and right columns
-    left_side_container, _, right_side_container = image_container.columns([.49, .02, .49])
+    left_side_container, _, right_side_container = image_container.columns([.7, .1, 1])
 
     # Display the annotated image with bounding boxes on the left side
     annotated_image = display_bounding_boxes(image, defect_detection_results)
     with left_side_container:
-        st.image(annotated_image, caption=f"Image Name: {image.split('/')[-1]}")
+        
+        annotated_image_title = f"<h3 style='text-align: center; font-size:24px;'>AI Visualization</h3>"
+
+        # Display the SVG image using st.markdown with unsafe_allow_html set to True
+        st.markdown(annotated_image_title, unsafe_allow_html=True)
+
+        st.image(annotated_image, caption=f"Image Name: {image.split('/')[-1]}", use_column_width=True)
     
     # Convert the defect detection results to a DataFrame
     results_df = results_to_df(defect_detection_results)
@@ -391,18 +421,18 @@ def defect_detection_view(image_container):
     right_side_container.divider()
 
     # Show cropped image selections and get the index of the selected image
-    select_cropped_image_index = show_cropped_image_selections(right_side_container, input_image)
+    select_cropped_image_index, show_image_column = show_cropped_image_selections(right_side_container, input_image)
     selected_cropped_image = defect_detection_results[list(defect_detection_results.keys())[select_cropped_image_index]]["Cropped Image Array"]
     selected_cropped_image_part_name = list(defect_detection_results.keys())[select_cropped_image_index]
 
     # Show inspect button and handle its click event
-    inspect_button = right_side_container.button(label="Inspect", use_container_width=True, type="primary")
+    inspect_button = show_image_column.button(label="Inspect", use_container_width=True, type="primary")
     if inspect_button:
         st.session_state["inspection_mode"] = True
         show_copilot_modal(selected_cropped_image, selected_cropped_image_part_name)
 
     # Show back button and handle its click event
-    back_button = image_container.button(label="Run on Another Image", use_container_width=True, type="primary")
+    back_button = image_container.button(label="Run on Another Image", use_container_width=True, type="secondary")
     if back_button:
         st.session_state["inference_mode"] = False
         st.rerun()
@@ -412,7 +442,16 @@ def main():
     """
     Main function to run the Watch Defect Detection Streamlit App.
     """
-    st.subheader("Defect Detection")
+    col1, top_middle, col3 = st.columns([.25, .5, .25])
+
+    with top_middle:
+
+
+        # The HTML code to embed the SVG image
+        title_html = f"<h2 style='text-align: center;'>AI Defect Detection on Watch X-Rays</h2>"
+
+        # Display the SVG image using st.markdown with unsafe_allow_html set to True
+        st.markdown(title_html, unsafe_allow_html=True)
 
     configured_and_ready = setup_verification()
 
