@@ -16,4 +16,5 @@ streamlit-modal==0.1.2
 torch==2.1.2
 tqdm==4.66.1
 ultralytics==8.1.4
+watchdog
 
