@@ -53,57 +53,6 @@ class DefectDetectionPipeline():
         for model in self.classification_models.values():
             model.local_image_storage_dir = image_storage_dir
 
-    # def detect_defects(self, input_image:Union[str, Image.Image], confidence_threshold:float = 0.60, iou_threshold:float = 0.60, device:str = None, excluded_parts:List[str] = []):
-    #     """
-    #     Detects defects in the input image.
-
-    #     Parameters:
-    #     - input_image (str): The file path of the input image.
-    #     - confidence_threshold (float, optional): The confidence threshold for object detection. Default is 0.60.
-    #     - iou_threshold (float, optional): The intersection over union (IOU) threshold for object detection. Default is 0.60.
-    #     - device (str, optional): The device to use for object detection (e.g., "cpu", "cuda"). If not specified, the default device will be used.
-    #     - excluded_parts (list, optional): A list of part names to exclude from defect detection.
-
-    #     Returns:
-    #     - defect_detection_results (dict): A dictionary containing the defect detection results, including the bounding box, confidence score, cropped image, and classification for each detected defect.
-    #     - object_detection_speed (float): The speed of the defect detection process.
-    #     - classification_speed (float): The speed of the object classification process.
-
-    #     Raises:
-    #     - ValueError: If the model type does not support object detection.
-    #     """
-
-    #     if isinstance(input_image, str):
-    #         input_image = Image.open(input_image)
-
-    #     # Perform Object Detection
-    #     object_detection_results, object_detection_speed = self.object_detection_model.detect_objects(input_image, confidence_threshold, iou_threshold, device)
-
-    #     defect_detection_results = {}
-
-    #     # Perform Object Classification for Each Detected Object
-    #     for object_name, object_info in object_detection_results.items():
-
-    #         if object_name in excluded_parts:
-    #             defect_detection_results[object_name] = {"Bounding Box": object_info["Bounding Box"], 
-    #                                                     "Confidence": object_info["Confidence"], 
-    #                                                     "Cropped_Image": object_info["Cropped_Image"],
-    #                                                     "Classification": "Excluded",
-    #                                                     "Classification_Confidence": None}
-    #             continue
-
-    #         cropped_image_path = object_info["Cropped_Image"]
-    #         classification_model = self.classification_models[object_name]
-    #         classification, confidence, classification_speed = classification_model.classify_object(cropped_image_path, device)
-    #         defect_detection_results[object_name] = {"Bounding Box": object_info["Bounding Box"], 
-    #                                                  "Confidence": object_info["Confidence"], 
-    #                                                  "Cropped_Image": object_info["Cropped_Image"],
-    #                                                  "Classification": classification,
-    #                                                  "Classification_Confidence": confidence}
-        
-    #     return defect_detection_results, object_detection_speed, classification_speed
-
-
     def detect_defects(self, input_image:Union[str, Image.Image], confidence_threshold:float = 0.60, iou_threshold:float = 0.60, device:str = None, excluded_parts:List[str] = [], return_df:bool = False):
         """
         Detects defects in the input image.

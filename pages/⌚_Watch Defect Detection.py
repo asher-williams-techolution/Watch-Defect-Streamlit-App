@@ -333,6 +333,7 @@ def image_selection_view(image_container):
     if defect_detection_button:
         # Set the selected image
         st.session_state["selected_image"] = image
+        st.session_state["inference_mode"] = True
         # Rerun the app to start defect detection
         st.rerun()
 
@@ -397,11 +398,13 @@ def defect_detection_view(image_container):
     # Show inspect button and handle its click event
     inspect_button = right_side_container.button(label="Inspect", use_container_width=True, type="primary")
     if inspect_button:
+        st.session_state["inspection_mode"] = True
         show_copilot_modal(selected_cropped_image, selected_cropped_image_part_name)
 
     # Show back button and handle its click event
     back_button = image_container.button(label="Run on Another Image", use_container_width=True, type="primary")
     if back_button:
+        st.session_state["inference_mode"] = False
         st.rerun()
 
 # Main function
