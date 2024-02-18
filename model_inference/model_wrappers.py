@@ -68,7 +68,7 @@ class YOLOModelWrapper():
     model_task_to_type_map = {"classify": "classification", "detect": "detection", "segment": "segmentation"}
 
     def __init__(self, GCS_bucket_name:str, GCS_model_directory:str, GCS_model_file_name:str,
-                 GCS_Auth_JSON_Path:str=None, local_model_storage_dir:str = None, local_image_storage_dir:str=None, model_type:str = None):
+                 GCS_Client:storage.Client=None, GCS_Auth_JSON_Path:str=None, local_model_storage_dir:str = None, local_image_storage_dir:str=None, model_type:str = None):
         """
         Initializes the YOLOModelWrapper object.
 
@@ -90,6 +90,8 @@ class YOLOModelWrapper():
 
         if self.GCS_auth_JSON_path is not None:
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self.GCS_auth_JSON_path
+
+        self.GCS_storage_client = GCS_Client if GCS_Client is not None else storage.Client()
 
         self.GCS_storage_bucket = self.initialize_gcs_bucket(self.GCS_bucket_name)
 
@@ -161,7 +163,7 @@ class YOLOModelWrapper():
         """
         
         try:
-            bucket = storage.Client().bucket(bucket_name)
+            bucket = self.GCS_storage_client.bucket(bucket_name)
             print("Successfully connected to GCS Storage Bucket")
             return bucket
         except Exception as e:

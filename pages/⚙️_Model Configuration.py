@@ -32,7 +32,9 @@ default_cls_model_file_name = {"Big Ring": "watch-big_ring-classification-model.
 
 def session_state_initialization():
     if "gcs_credentials" not in st.session_state:
-        st.session_state.gcs_credentials_info = st.secrets["gcs"]
+        credentials_info = st.secrets["gcs"]
+        credentials = service_account.Credentials.from_service_account_info(credentials_info)
+        st.session_state['gcs_credentials'] = credentials
 
     if "object_detection_model_count" not in st.session_state:
         st.session_state.object_detection_model_count = 0
@@ -59,12 +61,14 @@ def authenticate_gcs(json_path=None):
             with open(json_path) as json_file:
                 credentials_info = json.load(json_file)
             credentials = service_account.Credentials.from_service_account_info(credentials_info)
-            storage.Client(credentials=credentials)
+            client = storage.Client(credentials=credentials)
         else:
             # Use credentials from st.secrets
             credentials_info = st.secrets["gcs"]
             credentials = service_account.Credentials.from_service_account_info(credentials_info)
-            storage.Client(credentials=credentials)
+            client = storage.Client(credentials=credentials)
+
+        st.session_state.client = client
         
         # Store the credentials in session state
         st.session_state['gcs_credentials'] = credentials
@@ -76,7 +80,8 @@ def authenticate_gcs(json_path=None):
 
 def check_for_gcs_authentication():
     try:    
-        storage.Client(credentials=st.session_state['gcs_credentials_info'] if 'gcs_credentials_info' in st.session_state else None)
+        client = storage.Client(credentials=st.session_state['gcs_credentials'] if 'gcs_credentials' in st.session_state else None)
+        st.session_state.client = client
         st.session_state.GCS_Authenticated = True
         return True
     except:
@@ -145,7 +150,8 @@ def add_object_detection_model():
         model_name = obj_model_form.text_input(label="Model Name", value="" if "object_detection_model_name" not in st.session_state else st.session_state["object_detection_model_name"]) 
 
         if obj_model_form.form_submit_button("Add Model"):
-            object_detection_model = YOLOModelWrapper(GCS_bucket_name=bucket_name,
+            object_detection_model = YOLOModelWrapper(GCS_Client=st.session_state.client,
+                                                      GCS_bucket_name=bucket_name,
                                                       GCS_model_directory=directory,
                                                       GCS_model_file_name=file_name,
                                                       GCS_Auth_JSON_Path=None,
@@ -188,7 +194,8 @@ def add_classification_model():
     file_name = cls_model_form.text_input(label="File Name", value=default_cls_model_file_name[model_name])
 
     if cls_model_form.form_submit_button(label="Add Model", on_click=validate_file_name, args=(file_name,)):
-            classification_model = YOLOModelWrapper(GCS_bucket_name=bucket_name,
+            classification_model = YOLOModelWrapper(GCS_Client=st.session_state.client,
+                                                    GCS_bucket_name=bucket_name,
                                                     GCS_model_directory=directory,
                                                     GCS_model_file_name=file_name,
                                                     GCS_Auth_JSON_Path=None,
