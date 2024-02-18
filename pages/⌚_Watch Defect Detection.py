@@ -163,8 +163,8 @@ def model_inference(input_image, return_df=False):
         tuple: A tuple containing the defect detection results, object detection speed, and classification speed.
     """
 
-    device = "cpu"
-    
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+         
     defect_detection_pipeline = st.session_state["defect_detection_pipeline"]
 
     defect_detection_results, object_detection_speed, classification_speed = defect_detection_pipeline.detect_defects(input_image=input_image, 
