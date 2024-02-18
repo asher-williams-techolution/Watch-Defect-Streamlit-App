@@ -77,6 +77,7 @@ def authenticate_gcs(json_path=None):
 def check_for_gcs_authentication():
     try:    
         storage.Client(credentials=st.session_state['gcs_credentials_info'] if 'gcs_credentials_info' in st.session_state else None)
+        st.session_state.GCS_Authenticated = True
         return True
     except:
         return False
