@@ -31,6 +31,9 @@ default_cls_model_file_name = {"Big Ring": "watch-big_ring-classification-model.
 
 
 def session_state_initialization():
+    if "gcs_credentials" not in st.session_state:
+        st.session_state.gcs_credentials_info = st.secrets["gcs"]
+
     if "object_detection_model_count" not in st.session_state:
         st.session_state.object_detection_model_count = 0
 
@@ -73,7 +76,8 @@ def authenticate_gcs(json_path=None):
 
 def check_for_gcs_authentication():
     try:    
-        authenticate_gcs()
+        storage.Client(credentials=st.session_state['gcs_credentials_info'] if 'gcs_credentials_info' in st.session_state else None)
+        return True
     except:
         return False
  
@@ -204,24 +208,6 @@ def exclude_parts_from_object_detection():
     excluded_objects = st.multiselect("Excluded Parts", possible_objects, default=excluded_objects)
     st.session_state["excluded_objects"] = excluded_objects
 
-
-# Functionality Removed
-# def validate_model_name(model_name:str):
-#     possible_objects = st.session_state["object_detection_model"].names
-
-#     if model_name in possible_objects:
-#         return True
-#     else:
-#         return False
-    
-# def validate_model_name_callback(model_name:str):
-#     if not validate_model_name(model_name):
-#         st.error("Model Name not valid, must be a valid part name")
-#         return False
-#     else:
-#         st.success("Model Name Valid")
-#         return True
-
 # TODO: Move this function to app_utils.visualization_utils and have it take customization parameters
 def visualize_model_pipeline():
 
@@ -274,9 +260,6 @@ def visualize_model_pipeline():
     st.image(temp_file.name)
 
 def create_model_pipeline():
-
-
-
     if "defect_detection_pipeline" not in st.session_state:
         with st.form("Model Pipeline Form"):
             st.subheader("Confirm that this is the correct model pipeline")
@@ -305,7 +288,7 @@ def main():
     if not st.session_state.GCS_Authenticated:
         authentication_form()
     else:
-        authentication_status = st.success("GCS Authenticated")
+        st.success("GCS Authenticated")
 
     st.divider()
 
