@@ -3,3 +3,10 @@ primaryColor="#028d9a"
 backgroundColor="#121212"
 secondaryBackgroundColor="#171d1e"
 textColor="#a3ccd1"
+
+[logger]
+level = "info"
+messageFormat = "%(asctime)s %(message)s"
+
+[client]
+showErrorDetails = true
