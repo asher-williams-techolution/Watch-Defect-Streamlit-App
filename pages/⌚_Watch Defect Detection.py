@@ -410,13 +410,16 @@ def defect_detection_view(image_container):
         right_side_container.divider()
 
     # Display the object detection speed metric on the left column
-    left_col, right_col = right_side_container.columns([.5, .5])
+    left_col, middle_col, right_col = right_side_container.columns([1, 1, 1])
     with left_col:
         st.metric(label="Object Detection Speed", value=f"{object_detection_speed['inference']:.2f}ms 💨")
 
     # Display the overall classification speed metric on the right column
+    with middle_col:
+        middle_col.metric(label="Overall Classification Speed", value=f"{classification_speed:.2f}ms 💨")
+
     with right_col:
-        right_col.metric(label="Overall Classification Speed", value=f"{classification_speed:.2f}ms 💨")
+        right_col.metric(label="Total Inference Speed", value=f"{object_detection_speed['inference'] + classification_speed:.2f}ms 💨")
 
     right_side_container.divider()
 
