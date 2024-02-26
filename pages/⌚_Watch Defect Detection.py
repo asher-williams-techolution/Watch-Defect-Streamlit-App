@@ -120,7 +120,7 @@ def show_image_selections(container):
     base_path = os.path.join("pages", "sample_images")
     
     with container:
-        img = image_select(label="", images=[os.path.join(base_path, file) for file in os.listdir(base_path) if file.endswith((".jpg", ".png", ".jpeg"))], use_container_width=False)
+        img = image_select(label="", images=[os.path.join(base_path, file) for file in os.listdir(base_path) if file.endswith((".jpg", ".png", ".jpeg", ".JPEG", ".PNG", ".JPG"))], use_container_width=False)
         return img
 
 # Function to show cropped image selections
@@ -149,17 +149,17 @@ def show_cropped_image_selections(container, input_image):
 
         with col1:
 
-            img = image_select(label="", images=[data["Cropped Image Array"] for data in defect_detection_results.values()],
+            img = image_select(label="Click on one of the parts to preview", images=[data["Cropped Image Array"] for data in defect_detection_results.values()],
                             captions=[f"Part: {part}" for part in defect_detection_results.keys()], return_value="index", use_container_width=False)
             
         with col2:
-
-            st.image(defect_detection_results[list(defect_detection_results.keys())[img]]["Cropped Image Array"], use_column_width=True)
+            preview_image_container = col2.container(border=True)
+            preview_image_container.image(defect_detection_results[list(defect_detection_results.keys())[img]]["Cropped Image Array"], use_column_width=True)
 
         with col3:
             model_classification = defect_detection_results[list(defect_detection_results.keys())[img]]["Classification"]
             color = 'red' if model_classification != "Non Defective" else 'green'
-            model_classification_text = f"<h4 style='text-align: center; margin: auto; padding: 25% 0; font-size:28px; color: {color};'>Model Decision: {model_classification}. Click the inspect button to verify the AI's decision.</p>"
+            model_classification_text = f"<h4 style='text-align: center; margin: auto; padding: 25% 0; font-size:28px; color: {color};'>Model Decision: {model_classification}</p>"
             st.markdown(model_classification_text, unsafe_allow_html=True)
             
             return img, container
@@ -338,9 +338,11 @@ def image_selection_view(image_container):
 
     # Display the SVG image using st.markdown with unsafe_allow_html set to True
     outer_col.markdown(select_text_html, unsafe_allow_html=True)
+
+    image_selection_container = outer_col.container(height=1080)
     
     # Show image selections and get the selected image
-    image = show_image_selections(outer_col)
+    image = show_image_selections(image_selection_container)
 
     selected_text_html = f"<p style='text-align: center; font-size:24px;'>Previewing the Selected Image</p>"
 
@@ -348,7 +350,7 @@ def image_selection_view(image_container):
     right_outer_col.markdown(selected_text_html, unsafe_allow_html=True)
 
     # Display the selected image with its name as caption
-    right_outer_col.image(image, caption=f"Image Name: {image.split('/')[-1]}", use_column_width=True)
+    right_outer_col.image(image, use_column_width=True)
     
     # Create a button for defect detection
     defect_detection_button = right_outer_col.button(label="Detect for Defects", use_container_width=True, type="primary")
@@ -388,7 +390,7 @@ def defect_detection_view(image_container):
         # Display the SVG image using st.markdown with unsafe_allow_html set to True
         st.markdown(annotated_image_title, unsafe_allow_html=True)
 
-        st.image(annotated_image, caption=f"Image Name: {image.split('/')[-1]}", use_column_width=True)
+        st.image(annotated_image, use_column_width=True)
     
     # Convert the defect detection results to a DataFrame
     results_df = results_to_df(defect_detection_results)
@@ -448,7 +450,6 @@ def main():
     col1, top_middle, col3 = st.columns([.25, .5, .25])
 
     with top_middle:
-
 
         # The HTML code to embed the SVG image
         title_html = f"<h2 style='text-align: center;'>AI Defect Detection on Watch X-Rays</h2>"
