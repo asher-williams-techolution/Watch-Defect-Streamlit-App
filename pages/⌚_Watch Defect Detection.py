@@ -120,7 +120,7 @@ def show_image_selections(container):
     base_path = os.path.join("pages", "sample_images")
     
     with container:
-        img = image_select(label="", images=[os.path.join(base_path, file) for file in os.listdir(base_path) if file.endswith((".jpg", ".png", ".jpeg", ".JPEG", ".PNG", ".JPG"))], use_container_width=False)
+        img = image_select(label="", images=[os.path.join(base_path, file) for file in os.listdir(base_path)[:30] if file.endswith((".jpg", ".png", ".jpeg", ".JPEG", ".PNG", ".JPG"))], use_container_width=False)
         return img
 
 # Function to show cropped image selections
