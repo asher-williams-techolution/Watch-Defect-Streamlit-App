@@ -17,3 +17,5 @@ __pycache__/
 ensembleyolomodeltesting.ipynb
 
 faceopen_key.json
+
+.streamlit
