@@ -15,3 +15,5 @@ __pycache__/
 
 # Ignore ensembleyolomodeltesting.ipynb file
 ensembleyolomodeltesting.ipynb
+
+faceopen_key.json
