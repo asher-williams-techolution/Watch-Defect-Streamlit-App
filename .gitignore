@@ -18,4 +18,7 @@ ensembleyolomodeltesting.ipynb
 
 faceopen_key.json
 
-.streamlit
+.streamlit/secrets.toml
+
+.DS_Store
+
