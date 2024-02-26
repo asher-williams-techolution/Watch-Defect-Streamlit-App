@@ -21,4 +21,4 @@ faceopen_key.json
 .streamlit/secrets.toml
 
 .DS_Store
-
+auth_key.json

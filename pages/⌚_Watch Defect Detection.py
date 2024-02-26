@@ -10,12 +10,12 @@ import torch
 st.set_page_config(page_title="Defect Detection", page_icon="🔍", layout="wide", initial_sidebar_state="collapsed")
 
 # Copilot Gifs
-copilot_gifs = {"Big Ring" : {"Reference": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Big%20Ring%20-%20Reference%20-%20v4.gif",
-                              "Good": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Big%20Ring%20-%20Good%20-%20v4.gif",
-                              "Bad": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Big%20Ring%20-%20Bad%20-%20v4.gif"},
-                "Small Ring" : {"Reference": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Small%20Ring%20-%20Reference%20-%20v4.gif",
-                                "Good": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Small%20Ring%20-%20Good%20-%20v4.gif",
-                                "Bad": "https://storage.cloud.google.com/auto-ai_resources_fo/asher_model_export/Watch%20Copilot%20Assets/Small%20Ring%20-%20Bad%20-%20v4.gif"}}
+copilot_gifs = {"Big Ring" : {"Reference": "https://asher-williams-techolution.github.io/Watch-Defect-Streamlit-App/assets/reference_guide_gifs/bigring_reference.gif",
+                              "Good": "https://asher-williams-techolution.github.io/Watch-Defect-Streamlit-App/assets/reference_guide_gifs/bigring_good.gif",
+                              "Bad": "https://asher-williams-techolution.github.io/Watch-Defect-Streamlit-App/assets/reference_guide_gifs/bigring_bad.gif"},
+                "Small Ring" : {"Reference": "https://asher-williams-techolution.github.io/Watch-Defect-Streamlit-App/assets/reference_guide_gifs/smallring_reference.gif",
+                                "Good": "https://asher-williams-techolution.github.io/Watch-Defect-Streamlit-App/assets/reference_guide_gifs/smallring_good.gif",
+                                "Bad": "https://asher-williams-techolution.github.io/Watch-Defect-Streamlit-App/assets/reference_guide_gifs/smallring_bad.gif"},}
 
 # Function to check if models are configured
 def check_models_configurated():
